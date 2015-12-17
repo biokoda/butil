@@ -1,0 +1,14 @@
+{application, butil,
+ [
+  {description, "An Erlang butil library"},
+  {vsn, "1.0"},
+  {modules, [
+             butil
+            ]},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.
