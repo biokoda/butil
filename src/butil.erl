@@ -1369,24 +1369,6 @@ remobj(Key,Val,[H|T],L) ->
 remobj(_,_,[],L) ->
 	L.
 
-objtorec(A,Rec) ->
-	Def = recdef(Rec),
-	Elements = recfields(Rec),
-	RecTypes = rectypeinfo(Rec),
-	objtorec(A,Elements,tl(tuple_to_list(RecTypes)),Def,2).
-objtorec(A,[H|T],[TH|TT],R,Ind) ->
-	case ds_val(tolist(H),A) of
-		undefined ->
-			objtorec(A,T,TT,R,Ind+1);
-		"" ->
-			objtorec(A,T,TT,R,Ind+1);
-		Val ->
-			objtorec(A,T,TT,setelement(Ind,R,sqlescape(sqltypecheck(TH,Val))),Ind+1)
-	end;
-objtorec(_,[],[],R,_) ->
-	R.
-
-
 matchany([V|_],V) ->
 	true;
 matchany([_|T],V) ->
