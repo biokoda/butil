@@ -3,15 +3,9 @@
 % file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -module(butil).
 -compile(export_all).
-% -define(DEBUG,true).
 -include_lib("kernel/include/file.hrl").
 -include_lib("xmerl/include/xmerl.hrl").
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% 						WEB FUNCTIONS
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 safecall(undefined) ->
 	undefined;
 safecall(F) when is_function(F) ->
@@ -238,9 +232,9 @@ wait_for_app(Name) ->
 % 	{{toint(Year),toint(Month),toint(Day)},{toint(Hour),toint(Min),toint(Sec)}}.
 
 rfc3339() ->
-    rfc3339(calendar:now_to_local_time(os:timestamp())).
+	rfc3339(calendar:now_to_local_time(os:timestamp())).
 rfc3339(Gsec) when is_integer(Gsec) ->
-    rfc3339(datetime(Gsec));
+	rfc3339(datetime(Gsec));
 rfc3339(X) when is_list(X) ->
 	rfc3339(tobin(X));
 rfc3339(<<Year:4/binary, "-", Month:2/binary, "-", Day:2/binary, "T", Hour:2/binary,":",Min:2/binary,":",Sec:2/binary,_/binary>>) ->
@@ -248,20 +242,20 @@ rfc3339(<<Year:4/binary, "-", Month:2/binary, "-", Day:2/binary, "T", Hour:2/bin
 rfc3339(<<Year:4/binary, "-", Month:2/binary, "-", Day:2/binary>>) ->
 	{{toint(Year),toint(Month),toint(Day)},{toint(0),toint(0),toint(0)}};
 rfc3339({{Year, Month, Day}, {Hour, Min, Sec}}) ->
-    tobin(io_lib:format("~4..0w-~2..0w-~2..0wT~2..0w:~2..0w:~2..0w~s",
-                  [Year,Month,Day, Hour, Min, Sec, zone()])).
+	tobin(io_lib:format("~4..0w-~2..0w-~2..0wT~2..0w:~2..0w:~2..0w~s",
+				  [Year,Month,Day, Hour, Min, Sec, zone()])).
 
 zone() ->
-    Time = erlang:universaltime(),
-    LocalTime = calendar:universal_time_to_local_time(Time),
-    DiffSecs = calendar:datetime_to_gregorian_seconds(LocalTime) -
-        calendar:datetime_to_gregorian_seconds(Time),
-    zone(DiffSecs div 3600, (DiffSecs rem 3600) div 60).
+	Time = erlang:universaltime(),
+	LocalTime = calendar:universal_time_to_local_time(Time),
+	DiffSecs = calendar:datetime_to_gregorian_seconds(LocalTime) -
+		calendar:datetime_to_gregorian_seconds(Time),
+	zone(DiffSecs div 3600, (DiffSecs rem 3600) div 60).
 
 zone(Hr, Min) when Hr < 0; Min < 0 ->
-    io_lib:format("-~2..0w~2..0w", [abs(Hr), abs(Min)]);
+	io_lib:format("-~2..0w~2..0w", [abs(Hr), abs(Min)]);
 zone(Hr, Min) when Hr >= 0, Min >= 0 ->
-    io_lib:format("+~2..0w~2..0w", [Hr, Min]).
+	io_lib:format("+~2..0w~2..0w", [Hr, Min]).
 
 % miliseconds since epoch
 milisec() ->
@@ -660,10 +654,10 @@ parsexml(InputXml,Opt) ->
 
 strip_whitespace({El,Attr,Children}) ->
   NChild = lists:filter(fun(X) ->
-    case X of
-    " " -> false;
-    _   -> true
-    end
+	case X of
+	" " -> false;
+	_   -> true
+	end
   end,Children),
   Ch = lists:map(fun(X) -> strip_whitespace(X) end,NChild),
   {El,Attr,Ch};
@@ -722,7 +716,7 @@ query_pair({A,Op,V}) ->
 			[sqlescape(butil:tolist(A))," ",Op," ",sqlquote(V)," "]
 	end;
 query_pair(A) when is_binary(A)->
-    butil:tolist(A).
+	butil:tolist(A).
 
 query_pair_multiple([],_Op,_A,Output,_Len)->
 	Output;
@@ -823,7 +817,7 @@ sqlquote(X) when is_float(X) ->
 sqlunescape(X) ->
 	re:replace(X, "''", "'", [global, {return, binary}, unicode]).
 sqlescape(X) ->
- 	re:replace(X, "'", "''", [global, unicode]).
+	re:replace(X, "'", "''", [global, unicode]).
 
 % From SQL DB to erlang (reverse of sql_quote)
 sqltotype(ignore) ->
@@ -1071,10 +1065,10 @@ decode_percent(L,[]) ->
 -define(PERCENT, 37).  % $\%
 -define(FULLSTOP, 46). % $\.
 -define(QS_SAFE(C), ((C >= $a andalso C =< $z) orelse
-                     (C >= $A andalso C =< $Z) orelse
-                     (C >= $0 andalso C =< $9) orelse
-                     (C =:= ?FULLSTOP orelse C =:= $- orelse C =:= $~ orelse
-                      C =:= $_))).
+					 (C >= $A andalso C =< $Z) orelse
+					 (C >= $0 andalso C =< $9) orelse
+					 (C =:= ?FULLSTOP orelse C =:= $- orelse C =:= $~ orelse
+					  C =:= $_))).
 hexdigit(C) when C < 10 -> $0 + C;
 hexdigit(C) when C < 16 -> $A + (C - 10).
 
@@ -1083,9 +1077,9 @@ encode_percent(Str) ->
 encode_percent(Str,Type) when Type == plus; Type == noplus; Type == notwice ->
 	encode_percent(tolist(Str),Type,[]).
 encode_percent([], _, Acc) ->
-    lists:reverse(Acc);
+	lists:reverse(Acc);
 encode_percent([C | Rest],T, Acc) when ?QS_SAFE(C) ->
-    encode_percent(Rest,T, [C | Acc]);
+	encode_percent(Rest,T, [C | Acc]);
 % encode_percent([$\s | Rest], T, Acc) ->
 %     encode_percent(Rest, T, [$+ | Acc]);
 encode_percent([$%,A,B|Rest],T,Acc) ->
@@ -1110,8 +1104,8 @@ encode_whitespace_percent([],Acc) ->
 prop_to_query({A,B}) ->
 	prop_to_query([{A,B}]);
 prop_to_query(Props) ->
-    Pairs = lists:foldr(
-              fun ({K, V}, Acc) ->
+	Pairs = lists:foldr(
+			  fun ({K, V}, Acc) ->
 					  case V of
 						undefined ->
 							Acc;
@@ -1122,8 +1116,8 @@ prop_to_query(Props) ->
 						_ ->
 							[encode_percent(K) ++ "=" ++ encode_percent(V) | Acc]
 						end
-              end, [], Props),
-    string:join(Pairs, "&").
+			  end, [], Props),
+	string:join(Pairs, "&").
 
 split_first(B,Split) ->
 	binary:split(B,Split).
@@ -1178,7 +1172,7 @@ int2hex(N) ->
 	dec2hex(<<N:64>>).
 
 dec2hex(<<_/binary>> = Bin) ->
-    <<<<(hex0(H)), (hex0(L))>> || <<H:4, L:4>> <= Bin>>;
+	<<<<(hex0(H)), (hex0(L))>> || <<H:4, L:4>> <= Bin>>;
 dec2hex(L) ->
 	dec2hex(tobin(L)).
 
@@ -1637,45 +1631,30 @@ ip_to_int(IP) ->
 	case inet_parse:address(tolist(IP)) of
 		{ok,{A,B,C,D}} ->
 			<<Int:32/integer-unsigned>> = <<(toint(A)):8/integer-unsigned, (toint(B)):8/integer-unsigned,
-	        		(toint(C)):8/integer-unsigned, (toint(D)):8/integer-unsigned>>,
+				(toint(C)):8/integer-unsigned, (toint(D)):8/integer-unsigned>>,
 			Int;
 		{ok,{A,B,C,D,E,F,G,H}} ->
 			<<Int:128/integer-unsigned>> = <<(toint(A)):16/integer-unsigned, (toint(B)):16/integer-unsigned,
-	        		(toint(C)):16/integer-unsigned, (toint(D)):16/integer-unsigned,(toint(E)):16/integer-unsigned,
-	        		(toint(F)):16/integer-unsigned,(toint(G)):16/integer-unsigned,(toint(H)):16/integer-unsigned>>,
+				(toint(C)):16/integer-unsigned, (toint(D)):16/integer-unsigned,(toint(E)):16/integer-unsigned,
+				(toint(F)):16/integer-unsigned,(toint(G)):16/integer-unsigned,(toint(H)):16/integer-unsigned>>,
 			Int;
 		X ->
 			exit({invalidip,X})
 	end.
 
-% case string:tokens(tolist(IP), "., ") of
-% 		[A, B, C, D|_] ->
-% 			<<Int:32/integer-unsigned>> = <<(toint(A)):8/integer-unsigned, (toint(B)):8/integer-unsigned,
-% 	        		(toint(C)):8/integer-unsigned, (toint(D)):8/integer-unsigned>>,
-% 			Int;
-% 		_ ->
-% 			IPS = tolist(IP),
-% 			case string:tokens(tolist(IP), ":") of
-% 				[_I,_J,_K,_L,_E,_F,_G,_H|_] ->
-% 					inet_parse:
-% 					ok;
-% 				_ ->
-% 					exit({unrecognized_ip,IP})
-% 			end
-% 	end,
 
 
 async_set_sockopt(ListSock, CliSocket) ->
-    true = inet_db:register_socket(CliSocket, inet_tcp),
-    case prim_inet:getopts(ListSock, [active, nodelay, keepalive, delay_send, priority, tos]) of
-    {ok, Opts} ->
-        case prim_inet:setopts(CliSocket, Opts) of
-        ok    -> ok;
-        Error -> gen_tcp:close(CliSocket), Error
-        end;
-    Error ->
-        gen_tcp:close(CliSocket), Error
-    end.
+	true = inet_db:register_socket(CliSocket, inet_tcp),
+	case prim_inet:getopts(ListSock, [active, nodelay, keepalive, delay_send, priority, tos]) of
+	{ok, Opts} ->
+		case prim_inet:setopts(CliSocket, Opts) of
+		ok    -> ok;
+		Error -> gen_tcp:close(CliSocket), Error
+		end;
+	Error ->
+		gen_tcp:close(CliSocket), Error
+	end.
 
 % Pick N servers from different subnets from a list of IPs. If N higher than list of IPs, you just get the list of IPs back.
 % Return type is IP in integer
@@ -1760,11 +1739,11 @@ group(_,[],L) ->
 	L.
 
 ceiling(X) ->
-    T = trunc(X),
-    case X - T == 0 of
-        true -> T;
-        false -> T + 1
-    end.
+	T = trunc(X),
+	case X - T == 0 of
+		true -> T;
+		false -> T + 1
+	end.
 
 md5(X) ->
 	dec2hex(erlang:md5(X)).
@@ -2327,7 +2306,7 @@ httphead_body({Host,_Port,Us,Pw,Path,_Ssl},Headers1,Method,Body) ->
 								<<"Date: ">>,httpd_util:rfc1123_date(),<<"\r\n">>,
 							Auth,
 							% <<"Host: ">>,Host,<<"\r\n">>,
-						    <<"Connection: close\r\n">>,<<"\r\n">>,Body2].
+							<<"Connection: close\r\n">>,<<"\r\n">>,Body2].
 
 -record(httpr,{homeproc,sock, method = get, body = <<>>, recv_timeout = 60000, body_size = 0, headers = [], headersin = [],
 			   status = 0, ssl, postbody = <<>>,connopts = [],chunkdest, tofile, host,port,us,pw,
@@ -2515,7 +2494,7 @@ http_ex_rec(P) ->
 	end,
 	Sock = P#httpr.sock,
 	Close = fun() ->
-		 		case P#httpr.ssl of
+				case P#httpr.ssl of
 					true -> ssl:close(P#httpr.sock);
 					false -> gen_tcp:close(P#httpr.sock)
 				end
@@ -2653,14 +2632,14 @@ parse_chunked_bin(Bin,Chunks) ->
 	end.
 
 msToDate(Milliseconds) ->
-   BaseDate      = calendar:datetime_to_gregorian_seconds({{1970,1,1},{0,0,0}}),
-   Seconds       = BaseDate + (Milliseconds div 1000),
-   { Date,_Time} = calendar:gregorian_seconds_to_datetime(Seconds),
-   Date.
+	BaseDate      = calendar:datetime_to_gregorian_seconds({{1970,1,1},{0,0,0}}),
+	Seconds       = BaseDate + (Milliseconds div 1000),
+	{ Date,_Time} = calendar:gregorian_seconds_to_datetime(Seconds),
+	Date.
 
 is_proplist(List) ->
-    is_list(List) andalso
-        lists:all(fun({_, _}) -> true;
-                     (_)      -> false
-                  end,
-                  List).
+	is_list(List) andalso
+		lists:all(fun({_, _}) -> true;
+					 (_)      -> false
+				  end,
+				  List).
