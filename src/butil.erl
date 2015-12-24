@@ -1253,10 +1253,10 @@ mapdelete(_,_,[]) ->
 maplistsort(Key,L) ->
 	maplistsort(Key,L,asc).
 maplistsort(Key,L,asc) ->
-	Asc = fun(A,B) -> maps:get(Key,A) =< maps:get(Key,B) end,
+	Asc = fun(A,B) -> maps:get(Key,A,undefined) =< maps:get(Key,B,undefined) end,
 	lists:sort(Asc,L);
 maplistsort(Key,L,desc) ->
-	Desc = fun(A,B) -> maps:get(Key,A) >= maps:get(Key,B) end,
+	Desc = fun(A,B) -> maps:get(Key,A,undefined) >= maps:get(Key,B,undefined) end,
 	lists:sort(Desc,L).
 
 
