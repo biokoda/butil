@@ -1221,8 +1221,8 @@ indexof(_,[],_) ->
 	undefined.
 
 mapfind(K,V,[H|L]) ->
-	case maps:get(K,H) of
-		V ->
+	case maps:find(K,H) of
+		{ok,V} ->
 			H;
 		_ ->
 			mapfind(K,V,L)
@@ -1231,14 +1231,24 @@ mapfind(_,_,[]) ->
 	false.
 
 mapstore(Key,Val,[H|L],Map) ->
-	case maps:get(Key,H) of
-		Val ->
+	case maps:find(Key,H) of
+		{ok,Val} ->
 			[Map|L];
 		_ ->
 			[H|mapstore(Key,Val,L,Map)]
 	end;
 mapstore(_,_,[],Map) ->
 	[Map].
+
+mapdelete(Key,Val,[H|L]) ->
+	case maps:find(Key,H) of
+		{ok,Val} ->
+			L;
+		_ ->
+			[H|mapdelete(Key,Val,L)]
+	end;
+mapdelete(_,_,[]) ->
+	[].
 
 maplistsort(Key,L) ->
 	maplistsort(Key,L,asc).
